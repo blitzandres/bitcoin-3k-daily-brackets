@@ -1,5 +1,5 @@
 //@version=5
-// Original by Izzibird
+// Original by EasyBird
 indicator("BTC Days in Price Brackets (USD)", overlay=true, max_lines_count=200, max_labels_count=200)
 
 startT   = input.time(timestamp("2014-09-17T00:00:00"), "Start date (site uses Sep 17, 2014)")

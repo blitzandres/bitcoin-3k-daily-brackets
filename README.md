@@ -1,6 +1,6 @@
 # BTC Days in Price Brackets (USD)
 
-**Original by Izzibird**
+**Original by EasyBird**
 
 A TradingView Pine Script (v5) indicator. It counts how many daily closes Bitcoin has spent in each US-dollar price bracket since Sep 17, 2014, and shows each bracket's share of all days. The numbers match the Bitcoin brackets chart at https://andresblitz.com/bitcoin/.
 
