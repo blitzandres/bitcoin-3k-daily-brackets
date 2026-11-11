@@ -1,0 +1,43 @@
+//@version=5
+indicator("BTC Days in Price Brackets (USD)", overlay=true, max_lines_count=200, max_labels_count=200)
+
+startT   = input.time(timestamp("2014-09-17T00:00:00"), "Start date (site uses Sep 17, 2014)")
+step     = input.int(3000, "Bracket size (USD)", options=[2000, 3000, 4000, 5000, 10000, 15000])
+fontPick = input.string("Large", "Font size", options=["Normal", "Large", "Huge"])
+offsetX  = input.int(5, "Label distance from last bar", minval=1, maxval=50)
+
+cOrange = color.rgb(245, 158, 11)
+cNow    = color.rgb(234, 88, 12)
+cGrid   = color.rgb(231, 229, 228)
+fSize = fontPick == "Huge" ? size.huge : fontPick == "Large" ? size.large : size.normal
+
+// Always count BTC in US dollars, whatever chart it's on
+c = request.security("BITSTAMP:BTCUSD", "D", close, lookahead=barmerge.lookahead_off)
+// Rate to draw USD levels on a non-USD chart (1 on a USD chart)
+fx = syminfo.currency == "USD" ? 1.0 : request.currency_rate("USD", syminfo.currency)
+
+MAXB = 70
+var counts = array.new_int(MAXB, 0)
+var int total = 0
+
+if time >= startT and not na(c)
+    idx = math.min(int(math.floor(c / step)), MAXB - 1)
+    array.set(counts, idx, array.get(counts, idx) + 1)
+    total += 1
+
+f_k(v) => "$" + str.tostring(v / 1000) + "k"
+
+if barstate.islast and total > 0
+    curIdx = math.min(int(math.floor(c / step)), MAXB - 1)
+    for l in line.all
+        line.delete(l)
+    for lb in label.all
+        label.delete(lb)
+    for i = 0 to MAXB - 1
+        n = array.get(counts, i)
+        isCur = i == curIdx
+        if n > 0 or isCur
+            pct = n * 100.0 / total
+            line.new(bar_index - 1, i * step * fx, bar_index, i * step * fx, extend=extend.both, color=cGrid, style=line.style_dotted)
+            txt = f_k(i * step) + "  " + str.tostring(n) + "d · " + str.tostring(pct, "0.0") + "%" + (isCur ? "  ← now" : "")
+            label.new(bar_index + offsetX, (i + 0.5) * step * fx, txt, style=label.style_label_left, color=color.new(color.white, 100), textcolor=isCur ? cNow : cOrange, size=fSize)
